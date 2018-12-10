@@ -51,7 +51,7 @@ class CustomForm extends Component {
                                     ></CustomInput>
                                     {
                                         (field.isValid) &&
-                                            (field.isValid(this.props.form[field.name])) || (!this.props.form[field.name]) ?
+                                            ((field.isValid(this.props.form[field.name])) || (!this.props.form[field.name])) ?
                                             undefined :
                                             <p className="error red-text">{field.errMsg}</p>
                                     }

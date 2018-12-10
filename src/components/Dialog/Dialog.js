@@ -10,6 +10,7 @@ function getWrapNode(wrapNode) {
 }
 
 class Dialog extends Component {
+
     static setWrapper(element) {
         ariaHideHelper.initHideWrapper(element);
     }
@@ -55,14 +56,16 @@ class Dialog extends Component {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(255, 255, 255, 0.75)"
+            backgroundColor: "rgba(255, 255, 255, 0.7)"
         },
         content: {
             position: "absolute",
-            top: "40px",
-            left: "40px",
-            right: "40px",
-            bottom: "40px",
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
             border: "1px solid #ccc",
             background: "#fff",
             overflow: "auto",
@@ -78,14 +81,14 @@ class Dialog extends Component {
         const parent = getWrapNode(this.props.wrapNode);
         parent.appendChild(this.node);
     }
-    
+
     getSnapshotBeforeUpdate = (prevProps, nextProps) => {
         const prevWrapNode = getWrapNode(prevProps.wrapNode);
         const nextWrapNode = getWrapNode(this.props.wrapNode);
-        
+
         return { prevWrapNode, nextWrapNode };
     }
-    
+
     componentDidUpdate = (prevProps, prevState, snapshot) => {
         const { dialogIsOpen } = this.props;
         const { prevWrapNode, nextWrapNode } = snapshot;
@@ -100,7 +103,6 @@ class Dialog extends Component {
     }
 
     componentWillUnmount = () => {
-        console.log('object')
         if (!safeUsingDom || !this.node || !this.portalNode) return;
 
         const portalState = this.portalNode.state;
@@ -126,14 +128,14 @@ class Dialog extends Component {
 
     portalRef = ref => {
         this.portalNode = React.createRef(ref);
-       
     };
 
-
     render() {
+
         if (!safeUsingDom) {
             return null;
         }
+
         if (!this.node) {
             this.node = document.createElement("div");
         }

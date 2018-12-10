@@ -13,33 +13,7 @@ const matches = 'input, button , select, a, textarea, area, iframe, [contentEdit
 let amountDialogues = 0;
 
 export default class Portal extends Component {
-    static defaultProps = {
-        style: {},
-        defaultStyles: {
-            overlay: {
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(255, 255, 255, 0.75)'
-            },
-            content: {
-                position: 'absolute',
-                top: '40px',
-                left: '40px',
-                right: '40px',
-                bottom: '40px',
-                border: '1px solid #ccc',
-                background: '#fff',
-                overflow: 'auto',
-                WebkitOverflowScrolling: 'touch',
-                borderRadius: '4px',
-                outline: 'none',
-                padding: '20px'
-            }
-        }
-    };
+
     static propTypes = {
         dialogIsOpen: PropTypes.bool.isRequired,
         defaultStyles: PropTypes.shape({
@@ -52,12 +26,11 @@ export default class Portal extends Component {
         }),
         ariaHide: PropTypes.bool,
         appNode: PropTypes.instanceOf(safeElement),
-        handleAfterOpen: PropTypes.func,
         handleRequestClose: PropTypes.func,
         timeoutMS: PropTypes.number,
+        handleAfterOpen: PropTypes.func,
         shouldFocus: PropTypes.bool,
         shouldCloseOutsideClick: PropTypes.bool,
-        // shouldRestoreFocus: PropTypes.bool,
         role: PropTypes.string,
         label: PropTypes.string,
         aria: PropTypes.object,
@@ -108,9 +81,8 @@ export default class Portal extends Component {
         if (this.props.shouldFocus) {
             this.nodesArr = Array.from(this.props.appNode.querySelectorAll(matches))
             this.nodesArr.map(node => {
-                node.setAttribute("tabIndex", "-1")
+                return node.setAttribute("tabIndex", "-1")
             })
-            console.log(window, document)
         }
     }
     open = () => {
@@ -123,21 +95,21 @@ export default class Portal extends Component {
             this.setState({ dialogIsOpen: true }, () => {
                 this.setState({ afterOpening: true });
                 if (this.props.dialogIsOpen && this.props.handleAfterOpen) {
-                    // console.log(this.content.querySelector('button'))
                     this.content.querySelector('#closeBtn').focus()
                     this.props.handleAfterOpen();
                 }
             });
         }
     };
-    close = () => {
 
+    close = () => {
         if (this.props.timeoutMS > 0) {
             this.closeWithTimer();
         } else {
             this.closeWithoutTimer();
         }
     };
+
     closeWithTimer = () => {
         const closingTime = Date.now() + this.props.timeoutMS;
         this.setState({ beforeClosing: true, closingTime }, () => {
@@ -159,10 +131,10 @@ export default class Portal extends Component {
             this.afterClose
         );
     };
-    contentHasFocus = () =>
-        document.activeElement === this.content ||
-        this.content.contains(document.activeElement);
 
+    contentHasFocus = () => {
+        return document.activeElement === this.content || this.content.contains(document.activeElement);
+    }
 
     afterClose = () => {
         const {
@@ -172,19 +144,13 @@ export default class Portal extends Component {
         // Reset aria-hidden attribute if all dialogs have been removed
         if (ariaHide && amountDialogues > 0) {
             amountDialogues -= 1;
-            
             if (amountDialogues === 0) {
                 if (this.state.afterOpening && !this.state.beforeClosing) {
-                    console.log("close")
                     this.nodesArr = Array.from(this.props.appNode.querySelectorAll(matches))
-                    // console.log(this.nodesArr);
                     this.nodesArr.map((node, index) => {
-                        node.setAttribute("tabIndex", index+1)
-                        // console.log(this.nodesArr.length - 1)
+                        return node.setAttribute("tabIndex", index + 1)
                     })
-                    console.log(this.nodesArr[this.nodesArr.length - 1])
                     this.nodesArr[this.nodesArr.length - 1].focus()
-                    // window.setAttribute("tabIndex", -1)
                 }
                 ariaHideHelper.show(appNode);
             }
@@ -192,20 +158,16 @@ export default class Portal extends Component {
     };
     setOverlayRef = overlay => {
         this.overlay = overlay;
-        console.log(overlay)
         this.props.overlayRef && this.props.overlayRef(overlay);
     };
 
     setContentRef = content => {
-        console.log(content)
         this.content = content;
         this.props.contentRef && this.props.contentRef(content);
     };
 
     // handles
-
     handleKeyDown = event => {
-
         if (this.props.shouldCloseEsc && event.keyCode === ESC) {
             event.stopPropagation();
             this.requestClose(event);
@@ -222,42 +184,42 @@ export default class Portal extends Component {
         }
         this.shouldClose = null;
     };
-    requestClose = event =>
-        this.ownerHandlesClose() && this.props.handleRequestClose(event) ;
+
+    requestClose = event => this.ownerHandlesClose() && this.props.handleRequestClose(event);
 
     ownerHandlesClose = () => this.props.handleRequestClose;
 
     shouldBeClosed = () => !this.state.dialogIsOpen && !this.state.beforeClosing;
 
-    attributesFromObject = (prefix, items) =>
-        Object.keys(items).reduce((acc, name) => {
-            acc[`${prefix}-${name}`] = items[name];
-            return acc;
-        }, {});
+    attributesFromObject = (prefix, items) => Object.keys(items).reduce((acc, name) => {
+        acc[`${prefix}-${name}`] = items[name];
+        return acc;
+        }, {}
+    );
 
     render() {
+        console.log(this.props.defaultStyles, this.props.customStyle)
         const { defaultStyles } = this.props;
-        const contentStyles = defaultStyles.content;
-        const overlayStyles = defaultStyles.overlay;
+        const contentDefStyles = defaultStyles.content;
+        const overlayDefStyles = defaultStyles.overlay;
+
         return !this.shouldBeClosed() && (
             <div
                 ref={this.setOverlayRef}
                 className="overlay"
-                style={{ ...overlayStyles, ...this.props.style.overlay }}
-                onClick={this.handleOverlayOnClick}
-            >
+                style={{ ...overlayDefStyles, ...this.props.customStyle.overlay }}
+                onClick={this.handleOverlayOnClick}>
                 <div
                     ref={this.setContentRef}
-                    style={{ ...contentStyles, ...this.props.style.content }}
-                    className="content"
+                    style={{ ...contentDefStyles, ...this.props.customStyle.content }}
+                    className="dialog"
                     onKeyDown={this.handleKeyDown}
                     role={this.props.role}
                     aria-label={this.props.label}
                     {...this.attributesFromObject("aria", this.props.aria || {})}
-                    {...this.attributesFromObject("data", this.props.data || {})}
-                >
-                <button id="closeBtn" onClick={(e)=>this.requestClose(e)}>X</button>
-                    <div>
+                    {...this.attributesFromObject("data", this.props.data || {})}>
+                    <button className="closeBtn" onClick={(e) => this.requestClose(e)}>X</button>
+                    <div className="content">
                         {this.props.children}
                     </div>
                 </div>

@@ -1,23 +1,12 @@
 #App {
   text-align: center;
-}
-
-.App-logo {
-  animation: App-logo-spin infinite 5s linear;
-  height: 80px;
-}
-
-.App-header {
   background-color: #09a5d9;
   padding: 20px;
   color: white;
 }
 
-.App-intro {
-  font-size: large;
-}
 main {
-  padding:3rem;
+  padding: 3rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -47,10 +36,4 @@ form>input {
 }
 [aria-hidden=true] { pointer-events: none;}
 
-@keyframes App-logo-spin {
-  0% { transform: rotate(0deg); }
-  25% { transform: rotate(20deg); }
-  50% { transform: rotate(0deg); }
-  75% { transform: rotate(-20deg); }
-  100% { transform: rotate(0deg); }
-}
+
